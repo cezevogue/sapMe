@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Form\EditProductType;
 use App\Form\ProductType;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,10 +19,10 @@ class BackController extends AbstractController
     public function ajoutProduit(Request $request, EntityManagerInterface $manager): Response
     {
         // cette méthode doit nous permettre de créer un nouveau produit. On instancie donc un objet Product de App\Entity que l'on va remplir de toutes ses propriétés
-        $product=new Product();
+        $product = new Product();
 
         // ici on instancie un objet Form via la méthode createForm() existante de notre abstractController
-        $form=$this->createForm(ProductType::class, $product);
+        $form = $this->createForm(ProductType::class, $product);
         // cette méthode attend en argument le formulaire à utiliser et l'objet Entité auquel il fait référence, ainsi il va controler la conformité entre les champs de formulaire et les propriétés présentes dans l'entité pour pouvoir remplir l'objet Product par lui-même.
 
         // grace à la méthode handleRequest de notre objet de formulaire, il charge à présent l'objet Product de données receptionnées du formulaire présentent dans notre objet request (Request étant la classe de symfony qui récupère la majeur partie des données de superGlobale =>$_GET, $_POST ...)
@@ -32,23 +34,26 @@ class BackController extends AbstractController
         //  pour accéder à la surcouche de $_GET on utilise $request->query
         // qui possède les mêmes méthodes que $request->request
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
 
             //dd($product);
-           // dd($form->get('picture')->getData());
+            // dd($form->get('picture')->getData());
             // on récupère les données de notre input type File du formulaire qui a pour name 'picture'
-            $picture=$form->get('picture')->getData();
+            $picture = $form->get('picture')->getData();
             // condition d'upload de photo
-            if ($picture){
+            if ($picture) {
 
-                $picture_bdd=date('YmdHis').uniqid().$picture->getClientOriginalName();
+                $picture_bdd = date('YmdHis') . uniqid() . $picture->getClientOriginalName();
 
-                $picture->move($this->getParameter('upload_directory'),$picture_bdd);
+                $picture->move($this->getParameter('upload_directory'), $picture_bdd);
                 // move() est une méthode de notre objet File qui permet de déplacer notre fichier temporaire uploadé à un emplacement donné (le 1er paramètre) et de nommé ce fichier (le second paramètre de la méthode)
 
                 $product->setPicture($picture_bdd);
                 $manager->persist($product);
                 $manager->flush();
+
+                $this->addFlash('success', 'Produit ajouté');
+                return $this->redirectToRoute('gestionProduit');
 
 
             }
@@ -58,10 +63,43 @@ class BackController extends AbstractController
 
 
         return $this->render('back/ajoutProduit.html.twig', [
-            'form'=>$form->createView()
+            'form' => $form->createView()
 
         ]);
     }
 
+    #[Route('/gestionProduit', name: 'gestionProduit')]
+    public function gestionProduit(ProductRepository $productRepository): Response
+    {
+        $products=$productRepository->findAll();
 
-}
+
+        return $this->render('back/gestionProduit.html.twig', [
+             'products'=>$products
+        ]);
+    }
+
+
+        #[Route('/editProduct/{id}', name: 'editProduct')]
+            public function editProduct(Product $product, Request $request, EntityManagerInterface $manager): Response
+            {
+
+                $form=$this->createForm(EditProductType::class, $product);
+
+                $form->handleRequest($request);
+
+                if ($form->isSubmitted() && $form->isValid())
+                {
+
+
+
+                }
+
+
+                return $this->render('back/editProduct.html.twig', [
+
+                ]);
+            }
+
+
+}// fermeture de controller
