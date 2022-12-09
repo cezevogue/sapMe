@@ -31,8 +31,8 @@
                 <td>{{ product.title }}</td>
                 <td>{{ product.price }}€</td>
                 <td><img src="{{ asset('upload/')~product.picture }}" width="100" alt=""></td>
-                <td><a href="" class="btn btn-info">Modifier</a>
-                    <a href="" onclick="return confirm('Etes-vous sûr?')" class="btn btn-danger">Supprimer</a>
+                <td><a href="{{ path('editProduct', {'id': product.id}) }}" class="btn btn-info">Modifier</a>
+                    <a href="{{ path('deleteProduct', {'id': product.id}) }}" onclick="return confirm('Etes-vous sûr?')" class="btn btn-danger">Supprimer</a>
                 </td>
             </tr>
         {% endfor %}

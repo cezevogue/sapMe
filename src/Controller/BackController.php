@@ -90,6 +90,22 @@ class BackController extends AbstractController
 
                 if ($form->isSubmitted() && $form->isValid())
                 {
+                    if ($form->get('editPicture')->getData()){
+                    $picture=$form->get('editPicture')->getData();
+                        $picture_bdd = date('YmdHis') . uniqid() . $picture->getClientOriginalName();
+
+                        $picture->move($this->getParameter('upload_directory'), $picture_bdd);
+                         unlink($this->getParameter('upload_directory').'/'.$product->getPicture());
+                        $product->setPicture($picture_bdd);
+
+
+                    }
+
+                    $manager->persist($product);
+                    $manager->flush();
+
+                    $this->addFlash('success', 'Produit modifié');
+                    return $this->redirectToRoute('gestionProduit');
 
 
 
@@ -97,9 +113,22 @@ class BackController extends AbstractController
 
 
                 return $this->render('back/editProduct.html.twig', [
-
+                    'form'=>$form->createView(),
+                    'product'=>$product
                 ]);
             }
+
+
+                #[Route('/deleteProduct/{id}', name: 'deleteProduct')]
+                    public function deleteProduct(Product $product, EntityManagerInterface $manager): Response
+                    {
+                       $manager->remove($product);
+                       $manager->flush();
+
+                       $this->addFlash('success', 'produit supprimé !!!');
+
+                        return $this->redirectToRoute('gestionProduit');
+                    }
 
 
 }// fermeture de controller

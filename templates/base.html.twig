@@ -71,13 +71,13 @@
 
     <div class="container mt-5">
         {% for message in app.flashes('success') %}
-            <div class="alert alert-info mt-5 w-50 mx-auto">
+            <div class="alert alert-light text-center mt-5 w-50 mx-auto">
                 {{ message }}
             </div>
         {% endfor %}
 
         {% for message in app.flashes('danger') %}
-            <div class="alert alert-info mt-5 w-50 mx-auto">
+            <div class="alert alert-danger text-center mt-5 w-50 mx-auto">
                 {{ message }}
             </div>
         {% endfor %}
