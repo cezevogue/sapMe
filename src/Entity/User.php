@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,10 +20,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le champs doit être saisi')]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(min: 2, minMessage: 'votre nom doit contenir un minimum de 2 caractères', max: 20, maxMessage: 'Maximum de 20 caractères')]
     private ?string $lastname = null;
+
+    #[Assert\EqualTo(propertyPath: 'password', message: 'Les mots de passe ne correspondent pas')]
+    public ?string $confirmPassword =null;
 
     #[ORM\Column(length: 255)]
     private ?string $email = null;
