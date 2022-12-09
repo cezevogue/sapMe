@@ -16,7 +16,7 @@
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 </head>
 <body>
@@ -45,7 +45,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
+                    <a class="nav-link" href="{{ path('category') }}">Gestion catégorie</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ path('gestionProduit') }}">Gestion Produits</a>
@@ -53,26 +53,33 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ path('ajoutProduit') }}">Ajout produit</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
-                </li>
+
             </ul>
-            <form class="d-flex">
+            <form class="d-flex ">
                 <input class="form-control me-sm-2 w-50" type="text" placeholder="Search">
                 <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
             </form>
-            <a href="{{ path('login') }}" class="btn btn-info me-2">Connexion</a>
-            <a href="{{ path('register') }}" class="btn btn-light me-2">Inscription</a>
-            <a href="{{ path('logout') }}" class="btn btn-dark me-2">Deconnexion</a>
         </div>
+
+        {% if not app.user %}
+
+
+            <a href="{{ path('login') }}" class="btn btn-info me-1">Connexion</a>
+            <a href="{{ path('register') }}" class="btn btn-light me-1">Inscription</a>
+        {% else %}
+            <div class="nav-item dropdown ms-5 me-3">
+                <a class="nav-link dropdown-toggle text-dark" data-bs-toggle="dropdown" href="#" role="button"
+                   aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-user fa-xl  text-dark"></i></a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+            </div>
+            <a href="{{ path('logout') }}" class="btn btn-light me-3"><i class="fa-solid fa-power-off fa-xl"></i></a>
+        {% endif %}
     </div>
 </nav>
 
