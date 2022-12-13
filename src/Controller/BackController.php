@@ -3,12 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Entreprise;
 use App\Entity\Product;
+use App\Entity\SubCategory;
 use App\Form\CategoryType;
 use App\Form\EditProductType;
+use App\Form\EntrepriseType;
 use App\Form\ProductType;
+use App\Form\SubCategoryType;
 use App\Repository\CategoryRepository;
+use App\Repository\EntrepriseRepository;
 use App\Repository\ProductRepository;
+use App\Repository\SubCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -133,30 +139,27 @@ class BackController extends AbstractController
 
     #[Route('/category', name: 'category')]
     #[Route('/editCategory/{id}', name: 'editCategory')]
-    public function category(CategoryRepository $repository, EntityManagerInterface $manager, Request $request, $id=null): Response
+    public function category(CategoryRepository $repository, EntityManagerInterface $manager, Request $request, $id = null): Response
     {
 
-        $categories=$repository->findAll();
+        $categories = $repository->findAll();
 
-        if ($id)
-        {
-            $category=$repository->find($id);
-        }else{
+        if ($id) {
+            $category = $repository->find($id);
+        } else {
 
-            $category=new Category();
+            $category = new Category();
         }
 
 
-        $form=$this->createForm(CategoryType::class, $category);
+        $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $manager->persist($category);
             $manager->flush();
-            if ($id)
-            {
+            if ($id) {
                 $this->addFlash('success', 'Catégorie modifiée');
-            }else{
+            } else {
                 $this->addFlash('success', 'Catégorie ajoutée');
 
             }
@@ -167,12 +170,167 @@ class BackController extends AbstractController
         }
 
 
-
         return $this->render('back/category.html.twig', [
-            'form'=>$form->createView(),
-            'categories'=>$categories
+            'form' => $form->createView(),
+            'categories' => $categories
         ]);
     }
+
+
+    #[Route('/deleteCategory/{id}', name: 'deleteCategory')]
+    public function deleteCategory(CategoryRepository $repository, EntityManagerInterface $manager, $id): Response
+    {
+        $category = $repository->find($id);
+
+        $manager->remove($category);
+        $manager->flush();
+
+
+        return $this->redirectToRoute('category');
+    }
+
+
+    #[Route('/ajoutSousCategorie', name: 'ajoutSousCategorie')]
+    public function ajoutSousCategorie(Request $request, EntityManagerInterface $manager): Response
+    {
+        $sous_categorie = new SubCategory();
+
+        $form = $this->createForm(SubCategoryType::class, $sous_categorie);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $manager->persist($sous_categorie);
+            $manager->flush();
+            $this->addFlash('success', 'Sous-catégorie créée');
+            return $this->redirectToRoute('gestionSousCategorie');
+
+        }
+
+
+        return $this->render('back/ajoutSousCategorie.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/editSousCategorie/{id}', name: 'editSousCategorie')]
+    public function editSousCategorie(SubCategory $subCategory, Request $request, EntityManagerInterface $manager): Response
+    {
+
+
+        $form = $this->createForm(SubCategoryType::class, $subCategory);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $manager->persist($subCategory);
+            $manager->flush();
+            $this->addFlash('success', 'Sous-catégorie modifiée');
+            return $this->redirectToRoute('gestionSousCategorie');
+
+        }
+
+
+        return $this->render('back/editSousCategorie.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/gestionSousCategorie', name: 'gestionSousCategorie')]
+    public function gestionSousCategorie(SubCategoryRepository $repository): Response
+    {
+        $subcategories = $repository->findAll();
+
+
+        return $this->render('back/gestionSousCategorie.html.twig', [
+            'subCategories' => $subcategories
+        ]);
+    }
+
+
+    #[Route('/deleteSousCategorie/{id}', name: 'deleteSousCategorie')]
+    public function deleteSousCategorie(EntityManagerInterface $manager, SubCategory $subCategory): Response
+    {
+
+
+        $manager->remove($subCategory);
+        $manager->flush();
+        $this->addFlash('success', 'Sous-catégorie supprimée');
+        return $this->redirectToRoute('gestionSousCategorie');
+
+
+    }
+
+
+    #[Route('/ajoutEntreprise', name: 'ajoutEntreprise')]
+    public function ajoutEntreprise(Request $request, EntityManagerInterface $manager): Response
+    {
+        $entreprise=new Entreprise();
+
+        $form=$this->createForm(EntrepriseType::class, $entreprise);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
+            $manager->persist($entreprise);
+            $manager->flush();
+            $this->addFlash('success', 'Partenaria créé');
+            return $this->redirectToRoute('gestionEntreprise');
+
+
+        }
+
+
+        return $this->render('back/ajoutEntreprise.html.twig', [
+            'form'=>$form->createView()
+        ]);
+    }
+
+    #[Route('/editEntreprise/{id}', name: 'editEntreprise')]
+    public function editEntreprise(Request $request, Entreprise $entreprise, EntityManagerInterface $manager): Response
+    {
+
+        $form=$this->createForm(EntrepriseType::class, $entreprise);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
+            $manager->persist($entreprise);
+            $manager->flush();
+            $this->addFlash('success', 'Partenaria modifié');
+            return $this->redirectToRoute('gestionEntreprise');
+
+
+        }
+
+        return $this->render('back/editEntreprise.html.twig', [
+            'form'=>$form->createView()
+        ]);
+    }
+
+        #[Route('/gestionEntreprise', name: 'gestionEntreprise')]
+            public function gestionEntreprise(EntrepriseRepository $repository): Response
+            {
+                $entreprises=$repository->findAll();
+
+
+                return $this->render('back/gestionEntreprise.html.twig', [
+                  'entreprises'=>$entreprises
+                ]);
+            }
+
+                #[Route('/deleteEntreprise/{id}', name: 'deleteEntreprise')]
+                    public function deleteEntreprise(Entreprise $entreprise, EntityManagerInterface $manager): Response
+                    {
+                       $manager->persist($entreprise);
+                       $manager->flush();
+                        $this->addFlash('success', 'Partenaria supprimé');
+                        return $this->redirectToRoute('gestionEntreprise');
+
+
+                    }
 
 
 }// fermeture de controller
